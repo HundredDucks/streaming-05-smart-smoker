@@ -1,6 +1,6 @@
 # streaming-05-smart-smoker
 
-## Requirements
+## Producer Requirements
 
 PACKAGES:
 
@@ -16,7 +16,18 @@ FILES:
 
 smoker-temps.csv
 
-## Notes
+## Consumer Requirements
+
+PACKAGES:
+
+Pika
+Sys
+Time
+Logging
+Collections
+Datetime
+
+## Producer Notes
 
 Overall, this script is very similar to v2_emitter_of_tasks.py in Module 4, as well as my own version of that, v3_emitter_of_tasks.py.
 
@@ -28,8 +39,32 @@ Before the main function, I defined a custom function called send_message(). Thi
 
 To interrupt and stop the program, type CTRL+C.
 
-## Screenshots
+## Consumer Notes
+
+Like the producer script, this one is fairly similar to the source consumer script we used in Module 4, v2_listening_worker.py and my version of it. There are several more in depth changes added to handle multiple queues, callback functions, the conditions associated with those, and various other error and oddity handling. The overall goal is to be alerted when a critical temperature of the smoker or food is reached.
+
+After the imports and some logging setup, a few variables are defined regarding the number of items that should be held in the deques (based on the 30 second iterative sending of messages) and the temperature threshhold values.
+
+Then, a new function, process_temperature() is defined, with the overall goal of decoding the message from the producer and logging events, whether that be temperature recordings or temperature spikes. Very generally, the function works by unpacking the message, performing some conversions, recording temperatures and times from the deques, and logging messages if events occur and temperature spike conditions are met. This is a simplified explanation. More detailed information can be found within the comments of the code itself.
+
+Another new function, get_time_window(), was added to figure out what the critical time window is that a temperature spike should occur within to trigger an alert. This function is rather simple, checking a temperature name (either "Smoker", "Food A", or "Food B") to decide what the time window value should be.
+
+Then, three new callback functions are added, one for the smoker, one for Food A, and one for Food B. These are also rather simple, sending work to the process_temperature() function based on which temperature is relevant.
+
+The main() function is almost exactly the same as the original main() function in module 4. However, a list of tuples containing queue names and their associated callback functions created and looped over, telling the program which queue should be accessed based on which callback function is needed.
+
+When running this process in a terminal, interrupt and stop the program with CTRL+C.
+
+## Screenshots for Producer
 
 ![Script running in the terminal](./Terminal.JPG)
 
-![RabbitMQ Admin Site as the script is running](./AdminSite.JPG)
+![RabbitMQ Admin Site as the producer script is running](./AdminSite.JPG)
+
+## Screenshots for Consumer
+
+![Terminal showing smoker events](./SmokerTempChangeAlerts.JPG)
+
+![Terminal showing smoker and Food A and Food B events](./SmokerAndFoodTempsAndAlerts.JPG)
+
+![RabbitMQ Admin Site as the consumer script is running](./RabbitMQConsole.JPG)

@@ -46,8 +46,10 @@ def send_message(channel, queue_name, timestamp, temperature):
         timestamp
         temperature
     """
-    channel.basic_publish(exchange="", routing_key=queue_name, body=f"{timestamp},{temperature}")
-    logging.info(f"Sent to {queue_name} Queue: Timestamp={timestamp}, Temperature={temperature}")
+def send_message(channel, queue_name, timestamp, temperature):
+    if temperature is not None:  # Check if temperature is not None
+        channel.basic_publish(exchange="", routing_key=queue_name, body=f"{timestamp},{temperature}")
+        logging.info(f"Sent to {queue_name} Queue: Timestamp={timestamp}, Temperature={temperature}")
 
 def main():
     """
